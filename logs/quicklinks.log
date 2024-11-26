@@ -6743,3 +6743,111 @@ FileNotFoundError: [Errno 2] No such file or directory: 'link_opener.log'
 2024-11-26 12:34:38,997 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
 2024-11-26 12:34:38,997 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
 2024-11-26 12:34:38,997 - root - INFO - Detected security keys: []
+2024-11-26 12:34:39,850 - root - DEBUG - Checking DPI scaling...
+2024-11-26 12:34:40,067 - root - INFO - Found 24 HID devices
+2024-11-26 12:34:40,084 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:40,084 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,085 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:40,085 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:40,085 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,085 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:40,085 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,085 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:40,086 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:40,087 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:40,087 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:40,087 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:40,087 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:40,087 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:40,087 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:40,087 - root - INFO - Detected security keys: []
+2024-11-26 12:34:40,850 - root - DEBUG - Checking DPI scaling...
+2024-11-26 12:34:41,139 - root - INFO - Found 24 HID devices
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:41,153 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:41,154 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:41,154 - root - INFO - Detected security keys: []
+2024-11-26 12:34:41,864 - root - DEBUG - Checking DPI scaling...
+2024-11-26 12:34:42,212 - root - INFO - Found 24 HID devices
+2024-11-26 12:34:42,220 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:42,220 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,220 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:42,220 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:42,220 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,220 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:42,221 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:42,221 - root - INFO - Detected security keys: []
+2024-11-26 12:34:42,876 - root - DEBUG - Checking DPI scaling...
+2024-11-26 12:34:43,287 - root - INFO - Found 24 HID devices
+2024-11-26 12:34:43,297 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:43,305 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,306 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0x1532, PID: 0x0094
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0xFE0F, PID: 0x00FF
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0x06CB, PID: 0xCEFE
+2024-11-26 12:34:43,307 - root - DEBUG - Checking device - VID: 0x048D, PID: 0xC986
+2024-11-26 12:34:43,307 - root - INFO - Detected security keys: []
