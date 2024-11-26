@@ -187,6 +187,8 @@ def show_vpn_warning():
         """Close the warning window and continue without VPN"""
         vpn_window.destroy()
         root = ctk.CTk()
+        root.title("Quick Links Dashboard")
+        root.geometry(DEFAULT_WINDOW_SIZE)
         app = QuickLinksApp(root)
         root.mainloop()
     
@@ -346,10 +348,7 @@ class QuickLinksApp:
         self.unread_notifications = []
         self.notification_visible = False
         self.notification_popover = None
-        self.notification_ui = NotificationPopover(self, self.root)
-        
-        # Load persistent notifications in background
-        threading.Thread(target=self._load_persistent_notifications, daemon=True).start()
+        self.notification_ui = None  # Initialize to None first
         
         # Configure root grid
         self.root.grid_rowconfigure(0, weight=1)
@@ -385,6 +384,9 @@ class QuickLinksApp:
             height=30
         )
         self.notification_button.pack(side="left", padx=5, pady=5)
+        
+        # Now create the notification UI after all widgets are set up
+        self.notification_ui = NotificationPopover(self.root, self)
         
         # Bind single click event
         self.notification_button.bind('<Button-1>', self.handle_notification_click)
@@ -425,6 +427,9 @@ class QuickLinksApp:
         
         # Create GUI elements
         self.create_widgets()
+        
+        # Load persistent notifications in background
+        threading.Thread(target=self._load_persistent_notifications, daemon=True).start()
         
         # Setup system tray icon in background
         threading.Thread(target=self.setup_tray_icon, daemon=True).start()
@@ -1372,31 +1377,22 @@ class QuickLinksApp:
 
     def handle_notification_click(self, event):
         """Handle notification button click with proper event handling."""
-        try:
-            if event:
-                event.widget.focus_set()
+        if not self.notification_ui:
+            return
             
-            self.root.lift()
-            self.root.focus_force()
+        if not self.notification_ui.visible:
+            self.notification_ui.show()
+            self.root.after(100, lambda: self.root.bind('<Button-1>', self.check_click_outside_popover))
+        else:
+            self.notification_ui.hide()
+            self.root.unbind('<Button-1>')
             
-            if not hasattr(self, 'notification_popover') or not self.notification_popover:
-                self.notification_popover = NotificationPopover(self.root, self)
-                self.notification_popover.show()
-                self.root.after(100, lambda: self.root.bind('<Button-1>', self.check_click_outside_popover))
-            elif not self.notification_popover.visible:
-                self.notification_popover.show()
-                self.root.after(100, lambda: self.root.bind('<Button-1>', self.check_click_outside_popover))
-            else:
-                self.notification_popover.hide()
-            
-            return "break"
-        except Exception as e:
-            logging.error(f"Error handling notification click: {e}")
-
+        return "break"
+        
     def check_click_outside_popover(self, event):
         """Checks if click is outside the notification popover."""
         try:
-            if not hasattr(self, 'notification_popover') or not self.notification_popover or not self.notification_popover.visible:
+            if not hasattr(self, 'notification_ui') or not self.notification_ui or not self.notification_ui.visible:
                 return
             
             click_x = event.x_root
@@ -1407,8 +1403,8 @@ class QuickLinksApp:
                 button.winfo_rooty() <= click_y <= button.winfo_rooty() + button.winfo_height()):
                 return "break"
             
-            if not self.notification_popover.is_click_inside(click_x, click_y):
-                self.notification_popover.hide()
+            if not self.notification_ui.is_click_inside(click_x, click_y):
+                self.notification_ui.hide()
             
         except Exception as e:
             logging.error(f"Error checking click outside popover: {e}")
@@ -1416,13 +1412,13 @@ class QuickLinksApp:
     def toggle_notification_popover(self, *args):
         """Toggle the notification popover visibility."""
         try:
-            if not hasattr(self, 'notification_popover') or not self.notification_popover:
-                self.notification_popover = NotificationPopover(self.root, self)
-                self.notification_popover.show()
-            elif not self.notification_popover.visible:
-                self.notification_popover.show()
+            if not hasattr(self, 'notification_ui') or not self.notification_ui:
+                self.notification_ui = NotificationPopover(self.root, self)
+                self.notification_ui.show()
+            elif not self.notification_ui.visible:
+                self.notification_ui.show()
             else:
-                self.notification_popover.hide()
+                self.notification_ui.hide()
             
         except Exception as e:
             logging.error(f"Error toggling notification popover: {e}")
@@ -1471,8 +1467,8 @@ class QuickLinksApp:
             except Exception as e:
                 logging.error(f"Failed to save notification to file: {e}")
             
-            if hasattr(self, 'notification_popover') and self.notification_popover and self.notification_popover.visible:
-                self.notification_popover.update_notifications()
+            if hasattr(self, 'notification_ui') and self.notification_ui and self.notification_ui.visible:
+                self.notification_ui.update_notifications()
                 
             self.update_notification_button()
                 

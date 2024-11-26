@@ -1,320 +1,257 @@
-import customtkinter as ctk
-from datetime import datetime
+import os
+import json
 import logging
-from tkinter import messagebox
-from config_manager import ConfigManager
+import customtkinter as ctk
 
 class NotificationPopover:
     def __init__(self, root, app):
         self.root = root
         self.app = app
         self.visible = False
-        self.notification_frame = None
-        self.notifications_cache = []
-        self._drag_data = {"x": 0, "y": 0, "item": None, "click_x": 0, "click_y": 0}
+        self.window = None
         
-    def start_drag(self, event):
-        """Start dragging the notification popover."""
-        if not self.notification_frame:
-            return
-            
-        self._drag_data = {
-            "x": self.notification_frame.winfo_x(),
-            "y": self.notification_frame.winfo_y(),
-            "click_x": event.x_root,
-            "click_y": event.y_root,
-            "item": event.widget
-        }
+        # Create the popover window
+        self.create_popover()
         
-    def drag(self, event):
-        """Handle dragging of the notification popover."""
-        if not self._drag_data["item"]:
-            return
-            
-        # Calculate the distance moved
-        dx = event.x_root - self._drag_data["click_x"]
-        dy = event.y_root - self._drag_data["click_y"]
-        
-        # Update position
-        new_x = self._drag_data["x"] + dx
-        new_y = self._drag_data["y"] + dy
-        
-        # Get screen dimensions
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        frame_width = self.notification_frame.winfo_width()
-        frame_height = self.notification_frame.winfo_height()
-        
-        # Keep partially visible on screen (at least 30 pixels)
-        new_x = max(-frame_width + 30, min(new_x, screen_width - 30))
-        new_y = max(-frame_height + 30, min(new_y, screen_height - 30))
-        
-        # Place the frame
-        self.notification_frame.place(x=new_x, y=new_y)
-        
-    def stop_drag(self, event):
-        """Stop dragging the notification popover."""
-        if self._drag_data["item"]:
-            # Save position after drag ends
-            if self.notification_frame:
-                state = {
-                    'x': self.notification_frame.winfo_x(),
-                    'y': self.notification_frame.winfo_y()
-                }
-                ConfigManager.save_window_state('notification_popover', state)
-            
-            # Reset drag data
-            self._drag_data = {"x": 0, "y": 0, "item": None, "click_x": 0, "click_y": 0}
-            
-    def calculate_popover_position(self):
-        """Calculate the optimal position for the notification popover."""
-        try:
-            button = self.app.notification_button
-            
-            # Get button position in screen coordinates
-            button_x = button.winfo_rootx()
-            button_y = button.winfo_rooty()
-            
-            # Calculate initial position (align right edge with button)
-            x = button_x - 240  # Width of popover is 300, align with right edge
-            y = button_y + button.winfo_height() + 5
-            
-            # Convert to window coordinates
-            root_x = self.root.winfo_rootx()
-            root_y = self.root.winfo_rooty()
-            rel_x = x - root_x
-            rel_y = y - root_y
-            
-            return rel_x, rel_y
-            
-        except Exception as e:
-            logging.error(f"Error calculating popover position: {e}")
-            return 5, 5  # Default position if calculation fails
-
     def create_popover(self):
-        """Create the notification popover UI."""
-        try:
-            # Create main frame with overrideredirect
-            self.notification_frame = ctk.CTkFrame(
-                self.root,
-                width=300,
-                height=400,
-                fg_color=("gray85", "gray20"),
-                corner_radius=10,
-                border_width=1,
-                border_color=("gray80", "gray30")
-            )
-            
-            # Load saved position or use default
-            state = ConfigManager.get_window_state('notification_popover')
-            x = state.get('x', 240)
-            y = state.get('y', 100)
-            self.notification_frame.place(x=x, y=y)
-            
-            # Lift the frame to be on top
-            self.notification_frame.lift()
-            
-            # Add drag bindings
-            self.notification_frame.bind('<Button-1>', self.start_drag)
-            self.notification_frame.bind('<B1-Motion>', self.drag)
-            self.notification_frame.bind('<ButtonRelease-1>', self.stop_drag)
-
-            # Create title bar for dragging
-            title_bar = ctk.CTkFrame(
-                self.notification_frame,
-                height=30,
-                fg_color=("gray75", "gray25"),
-                corner_radius=8
-            )
-            title_bar.pack(fill="x", padx=2, pady=(2, 0))
-            title_bar.pack_propagate(False)
-            
-            # Add title label
-            title_label = ctk.CTkLabel(
-                title_bar,
-                text="Notifications",
-                font=("Helvetica", 12, "bold")
-            )
-            title_label.pack(side="left", padx=10)
-            
-            # Add clear button
-            clear_btn = ctk.CTkButton(
-                title_bar,
-                text="Clear All",
-                command=self.app.clear_notifications,
-                width=80,
-                height=25,
-                fg_color=("gray65", "gray35"),
-                hover_color=("gray55", "gray45")
-            )
-            clear_btn.pack(side="right", padx=5)
-            
-            # Bind dragging events to title bar
-            for widget in [title_bar, title_label]:
-                widget.bind("<Button-1>", self.start_drag)
-                widget.bind("<B1-Motion>", self.drag)
-                widget.bind("<ButtonRelease-1>", self.stop_drag)
-            
-            # Create scrollable frame for notifications
-            self.notification_list = ctk.CTkScrollableFrame(
-                self.notification_frame,
-                width=280,
-                height=350,
-                fg_color="transparent"
-            )
-            self.notification_list.pack(fill="both", expand=True, padx=5, pady=5)
-            
-            # Update notifications display
-            self.update_notifications()
-            
-        except Exception as e:
-            logging.error(f"Error creating notification popover: {e}")
-
+        """Creates the notification popover window with modern styling."""
+        self.window = ctk.CTkToplevel(self.root)
+        self.window.withdraw()  # Hide initially
+        
+        # Set window attributes
+        self.window.overrideredirect(True)  # Remove window decorations
+        self.window.attributes('-topmost', True)
+        
+        # Create main frame with rounded corners and padding
+        self.main_frame = ctk.CTkFrame(
+            self.window,
+            fg_color=("gray95", "gray15"),
+            corner_radius=12
+        )
+        self.main_frame.pack(fill="both", expand=True, padx=2, pady=2)
+        
+        # Header frame
+        header_frame = ctk.CTkFrame(
+            self.main_frame,
+            fg_color="transparent",
+            height=40
+        )
+        header_frame.pack(fill="x", padx=10, pady=(10, 5))
+        
+        # Make header draggable
+        header_frame.bind('<Button-1>', self.start_drag)
+        header_frame.bind('<B1-Motion>', self.on_drag)
+        
+        # Title with notification count
+        self.title_label = ctk.CTkLabel(
+            header_frame,
+            text="Notifications",
+            font=("Segoe UI", 14, "bold"),
+            anchor="w"
+        )
+        self.title_label.pack(side="left", padx=5)
+        
+        # Make title label draggable too
+        self.title_label.bind('<Button-1>', self.start_drag)
+        self.title_label.bind('<B1-Motion>', self.on_drag)
+        
+        # Clear all button
+        clear_button = ctk.CTkButton(
+            header_frame,
+            text="Clear All",
+            font=("Segoe UI", 12),
+            width=70,
+            height=24,
+            command=self.clear_all_notifications,
+            fg_color=("gray75", "gray30"),
+            hover_color=("gray65", "gray40")
+        )
+        clear_button.pack(side="right", padx=5)
+        
+        # Separator
+        separator = ctk.CTkFrame(
+            self.main_frame,
+            height=1,
+            fg_color=("gray80", "gray25")
+        )
+        separator.pack(fill="x", padx=10, pady=5)
+        
+        # Scrollable notification container
+        self.notification_container = ctk.CTkScrollableFrame(
+            self.main_frame,
+            fg_color="transparent",
+            height=300
+        )
+        self.notification_container.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        # Empty state label
+        self.empty_label = ctk.CTkLabel(
+            self.notification_container,
+            text="No notifications",
+            font=("Segoe UI", 12),
+            text_color=("gray60", "gray50")
+        )
+        
     def show(self):
-        """Show the notification popover."""
-        try:
-            if self.visible:
-                return
-                
+        """Shows the notification popover."""
+        if not self.window:
             self.create_popover()
-            self.visible = True
             
-            # Ensure popover is on top
-            if self.notification_frame:
-                self.notification_frame.lift()
-            
-            # Bind click outside to close
-            self.root.bind('<Button-1>', self.app.check_click_outside_popover)
-            
-        except Exception as e:
-            logging.error(f"Error showing notification popover: {e}")
-            
+        # Position the window below the notification button
+        button = self.app.notification_button
+        x = button.winfo_rootx() - self.window.winfo_width() + button.winfo_width()
+        y = button.winfo_rooty() + button.winfo_height() + 5
+        
+        self.window.geometry(f"300x400+{x}+{y}")
+        self.window.deiconify()
+        self.visible = True
+        
+        # Update notifications after window is shown
+        self.root.after(100, self.update_notifications)
+        
     def hide(self):
-        """Hide the notification popover."""
+        """Hides the notification popover."""
+        if self.window:
+            self.window.withdraw()
+        self.visible = False
+        
+    def clear_all_notifications(self):
+        """Clears all notifications."""
+        self.app.notifications.clear()
+        self.app.unread_notifications.clear()
+        self.update_notifications()
+        self.app.update_notification_button()
+        
+        # Save empty notifications
         try:
-            if not self.visible:
-                return
-                
-            if self.notification_frame:
-                self.notification_frame.destroy()
-                self.notification_frame = None
-                
-            self.visible = False
-            
+            config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+            notification_file = os.path.join(config_dir, "notifications.json")
+            os.makedirs(config_dir, exist_ok=True)
+            with open(notification_file, 'w') as f:
+                json.dump([], f)
         except Exception as e:
-            logging.error(f"Error hiding notification popover: {e}")
+            logging.error(f"Failed to save empty notifications: {e}")
             
-    def is_click_inside(self, x_root, y_root):
-        """Check if a click at screen coordinates (x_root, y_root) is inside the popover."""
-        if not self.notification_frame:
+    def update_notifications(self):
+        """Updates the notification list."""
+        if not self.window or not self.notification_container:
+            return
+            
+        # Clear existing notifications
+        for widget in self.notification_container.winfo_children():
+            widget.destroy()
+            
+        if not self.app.notifications:
+            self.empty_label.pack(pady=20)
+            self.title_label.configure(text="Notifications (0)")
+            return
+        else:
+            self.empty_label.pack_forget()
+            self.title_label.configure(text=f"Notifications ({len(self.app.notifications)})")
+            
+        # Add notifications in reverse chronological order
+        for notification in reversed(self.app.notifications):
+            self.create_notification_item(notification)
+            
+    def create_notification_item(self, notification):
+        """Creates a single notification item."""
+        # Container frame for the notification
+        frame = ctk.CTkFrame(
+            self.notification_container,
+            fg_color=("gray90", "gray20") if not notification.get("read", False) else "transparent",
+            corner_radius=8
+        )
+        frame.pack(fill="x", padx=5, pady=3)
+        
+        # Icon based on notification level
+        icon = "🔴" if notification["level"] == "error" else "🟡" if notification["level"] == "warning" else "🔵"
+        icon_label = ctk.CTkLabel(
+            frame,
+            text=icon,
+            font=("Segoe UI", 14)
+        )
+        icon_label.pack(side="left", padx=(10, 5), pady=10)
+        
+        # Message and timestamp
+        text_frame = ctk.CTkFrame(frame, fg_color="transparent")
+        text_frame.pack(side="left", fill="both", expand=True, padx=(0, 10), pady=5)
+        
+        message_label = ctk.CTkLabel(
+            text_frame,
+            text=notification["message"],
+            font=("Segoe UI", 12),
+            justify="left",
+            wraplength=200
+        )
+        message_label.pack(anchor="w")
+        
+        time_label = ctk.CTkLabel(
+            text_frame,
+            text=notification["timestamp"],
+            font=("Segoe UI", 10),
+            text_color=("gray50", "gray60")
+        )
+        time_label.pack(anchor="w")
+        
+        # Mark as read when clicked
+        def mark_as_read(event):
+            if not notification.get("read", False):
+                notification["read"] = True
+                if notification in self.app.unread_notifications:
+                    self.app.unread_notifications.remove(notification)
+                frame.configure(fg_color="transparent")
+                self.app.update_notification_button()
+                
+                # Save updated notifications
+                try:
+                    config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+                    notification_file = os.path.join(config_dir, "notifications.json")
+                    os.makedirs(config_dir, exist_ok=True)
+                    with open(notification_file, 'w') as f:
+                        json.dump(self.app.notifications, f)
+                except Exception as e:
+                    logging.error(f"Failed to save notification state: {e}")
+                
+        frame.bind("<Button-1>", mark_as_read)
+        message_label.bind("<Button-1>", mark_as_read)
+        time_label.bind("<Button-1>", mark_as_read)
+        
+        # Add hover effect
+        def on_enter(e):
+            if notification.get("read", False):
+                frame.configure(fg_color=("gray85", "gray25"))
+                
+        def on_leave(e):
+            if notification.get("read", False):
+                frame.configure(fg_color="transparent")
+                
+        frame.bind("<Enter>", on_enter)
+        frame.bind("<Leave>", on_leave)
+        
+    def is_click_inside(self, x, y):
+        """Checks if a click is inside the popover window."""
+        if not self.window:
             return False
             
-        # Get frame bounds in screen coordinates
-        frame_x = self.notification_frame.winfo_rootx()
-        frame_y = self.notification_frame.winfo_rooty()
-        frame_width = self.notification_frame.winfo_width()
-        frame_height = self.notification_frame.winfo_height()
+        win_x = self.window.winfo_x()
+        win_y = self.window.winfo_y()
+        win_width = self.window.winfo_width()
+        win_height = self.window.winfo_height()
         
-        # Check if click is within bounds
-        return (frame_x <= x_root <= frame_x + frame_width and
-                frame_y <= y_root <= frame_y + frame_height)
+        return (win_x <= x <= win_x + win_width and
+                win_y <= y <= win_y + win_height)
 
-    def format_notification(self, notification):
-        """Format notification dictionary into a readable string."""
-        try:
-            if isinstance(notification, dict):
-                message = notification.get('message', '')
-                timestamp = notification.get('timestamp', '')
-                level = notification.get('level', '')
-                
-                # Format based on notification level
-                icon = "⚠️ " if level == "warning" else "ℹ️ "
-                return f"{icon}{timestamp}\n{message}"
-            else:
-                return str(notification)
-        except Exception as e:
-            logging.error(f"Error formatting notification: {e}")
-            return str(notification)
-
-    def update_notifications(self):
-        """Updates the notification display in the popover."""
-        try:
-            if not self.notification_list:
-                return
-                
-            # Clear existing notifications
-            for widget in self.notification_list.winfo_children():
-                widget.destroy()
-                
-            # Get current notifications from app
-            notifications = self.app.notifications if hasattr(self.app, 'notifications') else []
-            
-            if not notifications:
-                # Show "No notifications" message
-                no_notif_label = ctk.CTkLabel(
-                    self.notification_list,
-                    text="No notifications",
-                    text_color=("gray60", "gray50")
-                )
-                no_notif_label.pack(pady=20)
-                return
-                
-            # Create notification widgets with error handling
-            for idx, notification in enumerate(notifications):
-                try:
-                    # Create frame with color based on notification level
-                    level = notification.get('level') if isinstance(notification, dict) else ''
-                    bg_color = ("gray80", "gray25") if level == "warning" else ("gray90", "gray15")
-                    
-                    notification_frame = ctk.CTkFrame(
-                        self.notification_list,
-                        fg_color=bg_color,
-                        corner_radius=8
-                    )
-                    notification_frame.pack(fill="x", padx=5, pady=2)
-                    
-                    # Create text widget for notification content
-                    text = ctk.CTkTextbox(
-                        notification_frame,
-                        height=50,
-                        wrap="word",
-                        fg_color="transparent"
-                    )
-                    text.pack(side="left", fill="x", expand=True, padx=(5, 0))
-                    
-                    # Format and insert notification content
-                    formatted_text = self.format_notification(notification)
-                    text.insert("1.0", formatted_text)
-                    text.configure(state="disabled")
-                    
-                    # Add remove button
-                    remove_btn = ctk.CTkButton(
-                        notification_frame,
-                        text="✕",
-                        width=30,
-                        command=lambda i=idx: self.remove_notification(i),
-                        fg_color=("gray70", "gray30"),
-                        hover_color=("gray60", "gray40")
-                    )
-                    remove_btn.pack(side="right", padx=5)
-                    
-                except Exception as e:
-                    logging.error(f"Error creating notification widget: {e}")
-                    continue
-                    
-            # Update immediately
-            self.notification_list.update_idletasks()
-            
-        except Exception as e:
-            logging.error(f"Error updating notifications: {e}")
-
-    def remove_notification(self, notification_index):
-        """Remove a single notification."""
-        try:
-            if notification_index < len(self.app.notifications):
-                self.app.notifications.pop(notification_index)
-                self.update_notifications()
-                if hasattr(self.app, 'update_notification_button'):
-                    self.app.update_notification_button()
-        except Exception as e:
-            logging.error("Error removing notification: {}".format(e))
+    def start_drag(self, event):
+        """Start window drag operation."""
+        self._drag_start_x = event.x_root
+        self._drag_start_y = event.y_root
+        self._window_start_x = self.window.winfo_x()
+        self._window_start_y = self.window.winfo_y()
+        
+    def on_drag(self, event):
+        """Handle window drag operation."""
+        dx = event.x_root - self._drag_start_x
+        dy = event.y_root - self._drag_start_y
+        new_x = self._window_start_x + dx
+        new_y = self._window_start_y + dy
+        self.window.geometry(f"+{new_x}+{new_y}")
