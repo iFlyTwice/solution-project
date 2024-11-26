@@ -1,0 +1,4 @@
+2024-11-23 20:03:07,101 - INFO - Checking VPN connection status...
+2024-11-23 20:03:07,108 - INFO - Cisco AnyConnect Status: (False, 'Cisco AnyConnect not found')
+2024-11-23 20:03:07,110 - WARNING - VPN not connected. Showing VPN warning window.
+2024-11-23 20:03:34,159 - INFO - Cisco AnyConnect Status: (False, 'Cisco AnyConnect not found')

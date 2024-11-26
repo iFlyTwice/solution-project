@@ -1,0 +1,16 @@
+{
+    "main_window": {
+        "geometry": "695x816+56+54",
+        "always_on_top": false
+    },
+    "settings_window": {
+        "geometry": "400x300+200+200"
+    },
+    "notification_popover": {
+        "x": 509,
+        "y": 495
+    },
+    "manage_zukey_window": {
+        "geometry": "526x504+2051+740"
+    }
+}
