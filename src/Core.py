@@ -326,6 +326,7 @@ class QuickLinksApp:
         self._stop_event = threading.Event()
         self._ui_update_lock = threading.Lock()
         self.active_threads = []
+        self._after_ids = set()  # Keep track of after callbacks
         
         # Initialize settings first
         from settings_dialog import SettingsDialog
@@ -498,15 +499,21 @@ class QuickLinksApp:
         try:
             logging.info("Closing application...")
             
-            # Stop all monitoring
-            self._stop_event.set()
-            self.monitoring = False
+            # Cancel all pending after callbacks
+            for after_id in list(self._after_ids):
+                try:
+                    self.root.after_cancel(after_id)
+                except Exception:
+                    pass
+            self._after_ids.clear()
             
-            # Clean up active threads
+            # Set stop event
+            self._stop_event.set()
+            
+            # Wait for threads
             for thread in self.active_threads:
-                if thread and thread.is_alive():
-                    logging.info(f"Waiting for thread {thread.name} to finish...")
-                    thread.join(timeout=0.5)
+                if thread.is_alive():
+                    thread.join(timeout=1.0)
             
             # Save window state
             self.save_window_state()
@@ -1297,19 +1304,46 @@ class QuickLinksApp:
             logging.error(f"Error in DPI scaling check: {e}")
 
     def open_scanner_apw(self):
-        """Opens the scanner APW window."""
+        """Opens the Scanner APW (Passcode Finder) window."""
         try:
-            if not self.is_vpn_connected():
-                raise Exception("VPN not connected. Please connect to VPN first.")
-
-            from ScannerAPW_BTN import PasscodeApp
-            scanner_window = self.create_toplevel_window(PasscodeApp)
-            scanner_window.focus_force()
-
+            logging.info("Opening Scanner APW...")
+            
+            # Check VPN first
+            if not self.check_vpn_connection():
+                from vpn_warning_dialog import show_vpn_warning
+                if not show_vpn_warning(self.root):
+                    logging.info("User cancelled Scanner APW due to no VPN")
+                    return
+                logging.info("User chose to continue without VPN")
+            
+            # Launch the PasscodeApp
+            import subprocess
+            import sys
+            import os
+            
+            # Get the path to ScannerAPW_BTN.py
+            scanner_path = os.path.join(os.path.dirname(__file__), "ScannerAPW_BTN.py")
+            
+            # Launch the script in a new process
+            subprocess.Popen([sys.executable, scanner_path], 
+                           creationflags=subprocess.CREATE_NO_WINDOW)
+            
+            logging.info("Scanner APW launched successfully")
+                
         except Exception as e:
-            logging.error(f"Error opening scanner APW: {e}")
-            self.show_error("Scanner APW Error", str(e))
-
+            logging.error(f"Error opening Scanner APW: {e}")
+            self.update_notification("Error opening Scanner APW", "error")
+    
+    def close_scanner_apw(self):
+        """Handle Scanner APW window closing"""
+        try:
+            if hasattr(self, 'scanner_window') and self.scanner_window:
+                self.scanner_window.destroy()
+                self.scanner_window = None
+                logging.info("Scanner APW window closed")
+        except Exception as e:
+            logging.error(f"Error closing Scanner APW window: {e}")
+    
     def load_window_state(self):
         """Load window position, size, and always-on-top state"""
         try:
@@ -1523,18 +1557,32 @@ class QuickLinksApp:
             logging.error(f"Error handling double-click event: {e}")
             self.update_notification(f"Error: An error occurred while handling the double-click event.\n{e}", "red")
     
-    def update_notification(self, message, color="green"):
-        """
-        Updates the notification label in the GUI with the given message.
-        
-        Args:
-            message (str): The notification message to display.
-            color (str): The text color of the message ("green", "red", etc.).
-        """
-        if hasattr(self, 'notification_label') and self.notification_label:
-            self.root.after(0, lambda: self.notification_label.configure(text=message, text_color=color))
-            self.root.after(0, lambda: self.notification_label.pack(fill="x", padx=10, pady=5))
-
+    def update_notification(self, message, status="info"):
+        """Update the notification label with the given message and status."""
+        try:
+            # Map status to colors
+            color_map = {
+                "info": "gray",
+                "success": "green",
+                "warning": "orange",
+                "error": "red"
+            }
+            color = color_map.get(status, "gray")
+            
+            def update_label():
+                try:
+                    if hasattr(self, 'notification_label'):
+                        self.notification_label.configure(text=message)
+                        self.notification_label.configure(text_color=color)
+                except Exception as e:
+                    logging.error(f"Error updating notification label: {e}")
+            
+            # Schedule the update on the main thread
+            self.root.after(0, update_label)
+            
+        except Exception as e:
+            logging.error(f"Error in update_notification: {e}")
+    
     @staticmethod
     def update_notification_static(message, color="green"):
         """
